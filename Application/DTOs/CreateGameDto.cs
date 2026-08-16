@@ -1,15 +1,25 @@
 ﻿using GameTracker.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
-namespace GameTracker.Domain.Entities
+namespace GameTracker.Application.DTOs
 {
-    public class Game
+    public class CreateGameDto
     {
-        public int Id { get; set; }
+        [Required]
+        [MinLength(1)]
         public string Title { get; set; } = string.Empty;
+
+        [Required]
         public string Genre { get; set; } = string.Empty;
+
         public Platform Platform { get; set; }
+
         public GameStatus Status { get; set; }
+
+        [Range(0,10)]
         public double? Rating { get; set; }
+
+        [Range(0,int.MaxValue)]
         public int HoursPlayed { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace GameTracker.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Games");
+                    b.ToTable("Games", (string)null);
                 });
 #pragma warning restore 612, 618
         }
