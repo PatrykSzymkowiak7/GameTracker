@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GameTracker.Application.DTOs;
+using GameTracker.Application.Exceptions;
 using GameTracker.Application.Interfaces;
 using GameTracker.Domain.Entities;
 using System.Reflection.Metadata.Ecma335;
@@ -19,6 +20,11 @@ namespace GameTracker.Application.Services
 
         public async Task<GameDto> CreateAsync(CreateGameDto dto)
         {
+            var existingGame = await _repository.GetByTitleAsync(dto.Title);
+
+            if(!(existingGame is null))
+                throw new GameConflictException($"Game '{dto.Title}' already exists.");
+
             var game = _mapper.Map<Game>(dto);
 
             var createdGame = await _repository.CreateAsync(game);
@@ -46,12 +52,12 @@ namespace GameTracker.Application.Services
             };
         }
 
-        public async Task<GameDto?> GetByIdAsync(int id)
+        public async Task<GameDto> GetByIdAsync(int id)
         {
             var game = await _repository.GetByIdAsync(id);
 
             if (game is null)
-                return null;
+                throw new GameNotFoundException(id);
 
             return _mapper.Map<GameDto>(game);
         }

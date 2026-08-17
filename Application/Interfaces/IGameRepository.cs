@@ -15,5 +15,6 @@ namespace GameTracker.Application.Interfaces
         Task<Game> CreateAsync(Game game);
         Task UpdateAsync(Game game);
         Task<bool> DeleteAsync(int id);
+        Task<Game?> GetByTitleAsync(string title);
     }
 }

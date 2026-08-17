@@ -6,6 +6,7 @@ using GameTracker.Infrastructure.Repositories;
 using GameTracker.Application.Mapping;
 using AutoMapper;
 using System.Text.Json.Serialization;
+using GameTracker.Api.ExceptionHandling;
 
 const string MigrationAssembly = "GameTracker.Infrastructure";
 
@@ -41,6 +42,9 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddDbContext<GameDbContext>(options =>
     options.UseSqlite("Data source=GameTracker.db",
     b => b.MigrationsAssembly(MigrationAssembly)));
@@ -49,6 +53,8 @@ builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameService, GameService>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

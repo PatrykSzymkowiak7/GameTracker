@@ -41,7 +41,7 @@ namespace GameTracker.Api.Controllers
         {
             var game = await _gameService.GetByIdAsync(id);
 
-            return game != null ? Ok(game) : NotFound();
+            return Ok(game);
         }
 
         [HttpPost]
