@@ -102,5 +102,10 @@ namespace GameTracker.Infrastructure.Repositories
             _context.Games.Update(game);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Game?> GetByTitleAsync(string title)
+        {
+            return await _context.Games.FirstOrDefaultAsync(g => g.Title == title);
+        }
     }
 }

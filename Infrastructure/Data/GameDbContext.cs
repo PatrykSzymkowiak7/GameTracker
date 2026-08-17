@@ -27,6 +27,10 @@ namespace GameTracker.Infrastructure.Data
                 .Property(g => g.Status)
                 .HasConversion<string>()
                 .IsRequired(true);
+
+            modelBuilder.Entity<Game>()
+                .HasIndex(g => g.Title)
+                .IsUnique();
         }
     }
 }
