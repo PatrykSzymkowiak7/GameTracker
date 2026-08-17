@@ -31,11 +31,19 @@ namespace GameTracker.Application.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public async Task<IEnumerable<GameDto>> GetAllAsync()
+        public async Task<PagedResultDto<GameDto>> GetAllAsync(GameQueryDto query)
         {
-            var games = await _repository.GetAllAsync();
+            var result = await _repository.GetAllAsync(query);
 
-            return _mapper.Map<IEnumerable<GameDto>>(games);
+            var gameDtos = _mapper.Map<IEnumerable<GameDto>>(result.Items);
+
+            return new PagedResultDto<GameDto>
+            {
+                Items = gameDtos,
+                Page = query.Page,
+                PageSize = query.PageSize,
+                TotalCount = result.TotalCount
+            };
         }
 
         public async Task<GameDto?> GetByIdAsync(int id)

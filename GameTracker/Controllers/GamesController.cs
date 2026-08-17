@@ -28,15 +28,16 @@ namespace GameTracker.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetAll()
+        public async Task<ActionResult<PagedResultDto<GameDto>>> GetAll(
+            [FromQuery] GameQueryDto query)
         {
-            var games = await _gameService.GetAllAsync();
+            var games = await _gameService.GetAllAsync(query);
 
             return Ok(games);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetByIdAsync(int id)
+        public async Task<ActionResult<GameDto?>> GetByIdAsync(int id)
         {
             var game = await _gameService.GetByIdAsync(id);
 
@@ -44,7 +45,7 @@ namespace GameTracker.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Game>> Create(CreateGameDto dto)
+        public async Task<ActionResult<GameDto>> Create(CreateGameDto dto)
         {
             var game = await _gameService.CreateAsync(dto);
 
@@ -56,7 +57,7 @@ namespace GameTracker.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Game>> Update(int id, UpdateGameDto dto)
+        public async Task<ActionResult<GameDto>> Update(int id, UpdateGameDto dto)
         {
             var game = await _gameService.UpdateAsync(id, dto);
 
