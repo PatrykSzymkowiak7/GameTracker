@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.37216.2 d17.14
+VisualStudioVersion = 17.14.37216.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Api", "GameTracker\GameTracker.Api.csproj", "{34BBDD72-85F7-4485-A790-7B902F89976E}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application", "Application\GameTracker.Application.csproj", "{BDBC4D19-F703-4062-B64F-41AE5CF58E24}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Infrastructure", "Infrastructure\GameTracker.Infrastructure.csproj", "{F255AC2A-22F3-40A7-9160-2667505097DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application.Tests", "Tests\GameTracker.Application.Tests.csproj", "{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{F255AC2A-22F3-40A7-9160-2667505097DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F255AC2A-22F3-40A7-9160-2667505097DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F255AC2A-22F3-40A7-9160-2667505097DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
