@@ -7,6 +7,7 @@ using GameTracker.Application.Mapping;
 using AutoMapper;
 using System.Text.Json.Serialization;
 using GameTracker.Api.ExceptionHandling;
+using GameTracker.Api.Extensions;
 
 const string MigrationAssembly = "GameTracker.Infrastructure";
 
@@ -45,28 +46,39 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<GameDbContext>(options =>
-    options.UseSqlite("Data source=GameTracker.db",
-    b => b.MigrationsAssembly(MigrationAssembly)));
+    options.UseSqlite(
+        connectionString,
+        b => b.MigrationsAssembly(MigrationAssembly)));
 
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameService, GameService>();
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using(var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var dbContext = scope.ServiceProvider.GetRequiredService<GameDbContext>();
+
+    dbContext.Database.Migrate();
 }
 
-app.UseHttpsRedirection();
+app.UseExceptionHandler();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}
