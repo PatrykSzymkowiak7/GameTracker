@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application.Tests", "Tests\GameTracker.Application.Tests.csproj", "{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Api.Tests", "GameTracker.Api.Tests\GameTracker.Api.Tests.csproj", "{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
