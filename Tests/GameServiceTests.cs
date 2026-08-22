@@ -6,7 +6,7 @@ using GameTracker.Application.Services;
 using GameTracker.Domain.Entities;
 using Moq;
 
-namespace Tests
+namespace GameTracker.Application.Tests
 {
     public class GameServiceTests
     {
