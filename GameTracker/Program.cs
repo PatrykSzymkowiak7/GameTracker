@@ -7,7 +7,7 @@ using GameTracker.Application.Mapping;
 using AutoMapper;
 using System.Text.Json.Serialization;
 using GameTracker.Api.ExceptionHandling;
-using GameTracker.Api.Extensions;
+using Asp.Versioning;
 
 const string MigrationAssembly = "GameTracker.Infrastructure";
 
@@ -57,6 +57,13 @@ builder.Services.AddDbContext<GameDbContext>(options =>
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameService, GameService>();
 
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.ReportApiVersions = true;
+    });
+
 var app = builder.Build();
 
 using(var scope = app.Services.CreateScope())
@@ -64,6 +71,8 @@ using(var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<GameDbContext>();
 
     dbContext.Database.Migrate();
+
+    await SeedData.SeedAsync(dbContext);
 }
 
 app.UseExceptionHandler();

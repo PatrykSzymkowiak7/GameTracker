@@ -10,7 +10,11 @@ namespace GameTracker.Application.Mapping
         {
             CreateMap<CreateGameDto, Game>();
             CreateMap<UpdateGameDto, Game>();
+
             CreateMap<Game, GameDto>();
+            CreateMap<Developer, DeveloperDto>();
+            CreateMap<Genre, GenreDto>();
+            CreateMap<GamePlatform, GamePlatformDto>();
         }
     }
 }

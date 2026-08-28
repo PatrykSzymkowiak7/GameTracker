@@ -10,6 +10,9 @@ namespace GameTracker.Application.Interfaces
         Task<GameDto> CreateAsync(CreateGameDto dto);
         Task<GameDto?> UpdateAsync(int id, UpdateGameDto dto);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<GenreDto>> GetGenresAsync();
+        Task<IEnumerable<GamePlatformDto>> GetPlatformsAsync();
+        Task<IEnumerable<DeveloperDto>> GetDevelopersAsync();
 
     }
 }

@@ -17,11 +17,17 @@ namespace GameTracker.Application.Tests
             {
                 Id = 1,
                 Title = "Elden Ring",
-                Genre = "RPG",
-                Platform = GameTracker.Domain.Enums.Platform.PC,
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 10,
-                HoursPlayed = 100
+                HoursPlayed = 100,
+                Genres = new List<Genre>
+                { 
+                    new Genre { Id = 1, Name = "RPG" } 
+                },
+                Platforms = new List<GamePlatform>
+                { 
+                    new GamePlatform { Id = 1, Name = "PC" } 
+                }
             };
 
             var repositoryMock = new Mock<IGameRepository>();
@@ -36,11 +42,17 @@ namespace GameTracker.Application.Tests
             {
                 Id = 1,
                 Title = "Elden Ring",
-                Genre = "RPG",
-                Platform = GameTracker.Domain.Enums.Platform.PC,
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 10,
-                HoursPlayed = 100
+                HoursPlayed = 100,
+                Genres = new List<GenreDto>
+                {
+                    new GenreDto { Id = 1, Name = "RPG" }
+                },
+                Platforms = new List<GamePlatformDto>
+                {
+                    new GamePlatformDto { Id = 1, Name = "PC" }
+                }
             };
 
             mapperMock
@@ -84,8 +96,14 @@ namespace GameTracker.Application.Tests
             {
                 Id = 1,
                 Title = "Elden Ring",
-                Genre = "RPG",
-                Platform = GameTracker.Domain.Enums.Platform.PC,
+                Genres = new List<Genre>
+                {
+                    new Genre { Id = 1, Name = "RPG" }
+                },
+                Platforms = new List<GamePlatform>
+                {
+                    new GamePlatform { Id = 1, Name = "PC" }
+                },
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 10,
                 HoursPlayed = 100
@@ -95,8 +113,14 @@ namespace GameTracker.Application.Tests
             {
                 Id = 2,
                 Title = "The First Berserker: Khazan",
-                Genre = "RPG",
-                Platform = GameTracker.Domain.Enums.Platform.PC,
+                Genres = new List<Genre>
+                {
+                    new Genre { Id = 1, Name = "RPG" }
+                },
+                Platforms = new List<GamePlatform>
+                {
+                    new GamePlatform { Id = 1, Name = "PC" }
+                },
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 9,
                 HoursPlayed = 50
@@ -108,22 +132,35 @@ namespace GameTracker.Application.Tests
             {
                 Id = 1,
                 Title = "Elden Ring",
-                Genre = "RPG",
-                Platform = GameTracker.Domain.Enums.Platform.PC,
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 10,
-                HoursPlayed = 100
+                HoursPlayed = 100,
+                Genres = new List<GenreDto>
+                {
+                    new GenreDto { Id = 1, Name = "RPG" }
+                },
+                Platforms = new List<GamePlatformDto>
+                {
+                    new GamePlatformDto { Id = 1, Name = "PC" }
+                }
             };
 
             GameDto expectedDto2 = new GameDto
             {
                 Id = 2,
                 Title = "The First Berserker: Khazan",
-                Genre = "RPG",
-                Platform = GameTracker.Domain.Enums.Platform.PC,
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 9,
-                HoursPlayed = 50
+                HoursPlayed = 50,
+                Genres = new List<GenreDto>
+                {
+                    new GenreDto { Id = 1, Name = "RPG" }
+                },
+                Platforms = new List<GamePlatformDto>
+                {
+                    new GamePlatformDto { Id = 1, Name = "PC" }
+                }
+
             };
 
             var expectedItems = new List<GameDto> { expectedDto1, expectedDto2 };
@@ -139,9 +176,9 @@ namespace GameTracker.Application.Tests
             GameQueryDto gameQuery = new GameQueryDto()
             {
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
-                Genre = "RPG",
+                GenreId = 1,
                 Page = 1,
-                Platform = GameTracker.Domain.Enums.Platform.PC,
+                PlatformId = 1,
                 Descending = false,
                 SortBy = string.Empty
             };
