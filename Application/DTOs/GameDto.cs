@@ -8,14 +8,16 @@ namespace GameTracker.Application.DTOs
 
         public string Title { get; set; } = string.Empty;
 
-        public string Genre { get; set; } = string.Empty;
-
-        public Platform Platform { get; set; }
-
-        public GameStatus Status { get; set; }
-
         public double? Rating { get; set; }
 
         public int HoursPlayed { get; set; }
+
+        public GameStatus Status { get; set; }
+
+        public DeveloperDto? Developer { get; set; }
+
+        public IEnumerable<GenreDto> Genres { get; set; } = [];
+
+        public IEnumerable<GamePlatformDto> Platforms { get; set; } = [];
     }
 }

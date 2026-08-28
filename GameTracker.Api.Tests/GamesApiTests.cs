@@ -4,6 +4,8 @@ using GameTracker.Domain.Enums;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace GameTracker.Api.Tests
@@ -11,6 +13,20 @@ namespace GameTracker.Api.Tests
     public class GamesApiTests : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly CustomWebApplicationFactory _factory;
+
+        private static readonly JsonSerializerOptions JsonOptions = CreateJsonOptions();
+
+        private static JsonSerializerOptions CreateJsonOptions()
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            options.Converters.Add(new JsonStringEnumConverter());
+
+            return options;
+        }
 
         public GamesApiTests(CustomWebApplicationFactory factory)
         {
@@ -41,7 +57,7 @@ namespace GameTracker.Api.Tests
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content
-                .ReadFromJsonAsync<PagedResultDto<GameDto>>();
+                .ReadFromJsonAsync<PagedResultDto<GameDto>>(JsonOptions);
 
             Assert.NotNull(result);
             Assert.Equal(2, result.TotalCount);
@@ -53,26 +69,33 @@ namespace GameTracker.Api.Tests
         {
             await _factory.ResetDatabaseAsync();
 
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            jsonOptions.Converters.Add(new JsonStringEnumConverter());
+
             var client = _factory.CreateClient();
 
             var request = new CreateGameDto
             {
                 Title = "Cyberpunk 2077",
-                Genre = "RPG",
-                Platform = Platform.PC,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Backlog,
                 Rating = 9,
-                HoursPlayed = 0
+                HoursPlayed = 0,
             };
 
             var response = await client.PostAsJsonAsync(
                 "api/Games",
-                request);
+                request,
+                jsonOptions);
 
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
             var createdGame = await response.Content
-                .ReadFromJsonAsync<GameDto>();
+                .ReadFromJsonAsync<GameDto>(jsonOptions);
 
             Assert.NotNull(createdGame);
             Assert.Equal(request.Title, createdGame.Title);
@@ -88,8 +111,8 @@ namespace GameTracker.Api.Tests
             var request = new CreateGameDto
             {
                 Title = "Elden Ring",
-                Genre = "RPG",
-                Platform = Platform.PC,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Backlog
             };
 
@@ -136,10 +159,11 @@ namespace GameTracker.Api.Tests
 
             var response = await client.PutAsJsonAsync(
                 "api/Games/1",
-                request);
+                request,
+                JsonOptions);
 
             var updatedGame = await response.Content
-                .ReadFromJsonAsync<GameDto>();
+                .ReadFromJsonAsync<GameDto>(JsonOptions);
 
             Assert.NotNull(updatedGame);
             Assert.Equal(GameStatus.Completed, updatedGame.Status);
@@ -192,8 +216,8 @@ namespace GameTracker.Api.Tests
             var request = new CreateGameDto
             {
                 Title = "",
-                Genre = "RPG",
-                Platform = Platform.PC,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Backlog,
                 Rating = 15,
                 HoursPlayed = -10
@@ -201,7 +225,8 @@ namespace GameTracker.Api.Tests
 
             var response = await client.PostAsJsonAsync(
                 "/api/Games",
-                request);
+                request,
+                JsonOptions);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }

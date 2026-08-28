@@ -43,18 +43,26 @@ namespace GameTracker.Infrastructure.Repositories
 
         public async Task<(IEnumerable<Game> Items, int TotalCount)> GetAllAsync(GameQueryDto query)
         {
-            IQueryable<Game> games = _context.Games;
+            IQueryable<Game> games = _context.Games
+                .Include(g => g.Developer)
+                .Include(g => g.Genres)
+                .Include(g => g.Platforms);
 
             if (query.Status.HasValue)
                 games = games.Where(g => g.Status == query.Status.Value);
 
-            if(query.Platform.HasValue)
-                games = games.Where(g => g.Platform == query.Platform.Value);
+            if(query.DeveloperId.HasValue)
+                games = games.Where(g => g.DeveloperId == query.DeveloperId.Value);
 
-            if(!string.IsNullOrWhiteSpace(query.Genre))
-                games = games.Where(g => g.Genre == query.Genre);
+            if (query.GenreId.HasValue)
+                games = games.Where(g => 
+                    g.Genres.Any(genre => genre.Id == query.GenreId.Value));
 
-            if(!string.IsNullOrWhiteSpace(query.SortBy))
+            if (query.PlatformId.HasValue)
+                games = games.Where(g =>
+                    g.Platforms.Any(platform => platform.Id == query.PlatformId.Value));
+
+            if (!string.IsNullOrWhiteSpace(query.SortBy))
             {
                 games = query.SortBy.ToLower() switch
                 {
@@ -68,7 +76,9 @@ namespace GameTracker.Infrastructure.Repositories
 
                     "hoursplayed" => query.Descending
                     ? games.OrderByDescending(g => g.HoursPlayed)
-                    : games.OrderBy(g => g.HoursPlayed)
+                    : games.OrderBy(g => g.HoursPlayed),
+
+                    _ => games
                 };
             }
 
@@ -84,6 +94,7 @@ namespace GameTracker.Infrastructure.Repositories
             var totalCount = await games.CountAsync();
 
             var skip = (query.Page - 1) * query.PageSize;
+
             var items = await games
                 .Skip(skip)
                 .Take(query.PageSize)
@@ -106,6 +117,50 @@ namespace GameTracker.Infrastructure.Repositories
         public async Task<Game?> GetByTitleAsync(string title)
         {
             return await _context.Games.FirstOrDefaultAsync(g => g.Title == title);
+        }
+
+        public async Task<List<Genre>> GetGenresByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Genres
+                .Where(g => ids.Contains(g.Id))
+                .ToListAsync();
+        }
+
+        public async Task<List<GamePlatform>> GetGamePlatformsByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Platforms
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync();
+        }
+
+        public async Task<Developer?> GetDeveloperByIdAsync(int id)
+        {
+            return await _context.Developers
+                .FindAsync(id);
+        }
+
+        public async Task<IEnumerable<Genre>> GetAllGenresAsync()
+        {
+            return await _context.Genres
+                .AsNoTracking()
+                .OrderBy(g => g.Name)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<GamePlatform>> GetAllPlatformsAsync()
+        {
+            return await _context.Platforms
+                .AsNoTracking()
+                .OrderBy(g => g.Name)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Developer>> GetAllDevelopersAsync()
+        {
+            return await _context.Developers
+                .AsNoTracking()
+                .OrderBy(g => g.Name)
+                .ToListAsync();
         }
     }
 }

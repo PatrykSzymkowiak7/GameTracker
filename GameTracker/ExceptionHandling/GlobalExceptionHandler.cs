@@ -19,7 +19,9 @@ namespace GameTracker.Api.ExceptionHandling
             CancellationToken cancellationToken)
         {
             if(!(exception is GameNotFoundException) && 
-                !(exception is GameConflictException))
+                !(exception is GameConflictException) &&
+                 !(exception is DeveloperNotFoundException) &&
+                  !(exception is GameValidationException))
             {
                 _logger.LogError(
                     exception,
@@ -29,6 +31,8 @@ namespace GameTracker.Api.ExceptionHandling
             var statusCode = exception switch
             {
                 GameNotFoundException => StatusCodes.Status404NotFound,
+                DeveloperNotFoundException => StatusCodes.Status404NotFound,
+                GameValidationException => StatusCodes.Status400BadRequest,
                 GameConflictException => StatusCodes.Status409Conflict,
                 _ => StatusCodes.Status500InternalServerError
             };
@@ -36,6 +40,8 @@ namespace GameTracker.Api.ExceptionHandling
             var title = exception switch
             { 
                 GameNotFoundException => "Game not found",
+                DeveloperNotFoundException => "Developer not found",
+                GameValidationException => "Validation error",
                 GameConflictException => "Game conflict",
                 _ => "Internal server error"
             };
@@ -43,6 +49,7 @@ namespace GameTracker.Api.ExceptionHandling
             var detail = exception switch
             {
                 GameNotFoundException => exception.Message,
+                DeveloperNotFoundException => exception.Message,
                 GameConflictException => exception.Message,
                 _ => "An unhandlex exception occured."
             };

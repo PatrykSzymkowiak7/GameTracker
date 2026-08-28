@@ -1,12 +1,14 @@
-﻿using GameTracker.Application.DTOs;
+﻿using Asp.Versioning;
+using GameTracker.Application.DTOs;
 using GameTracker.Application.Interfaces;
 using GameTracker.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameTracker.Api.Controllers
 {
+    [ApiVersion(1.0)]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class GamesController : ControllerBase
     {
         private readonly IGameService _gameService;

@@ -16,5 +16,11 @@ namespace GameTracker.Application.Interfaces
         Task UpdateAsync(Game game);
         Task<bool> DeleteAsync(int id);
         Task<Game?> GetByTitleAsync(string title);
+        Task<List<Genre>> GetGenresByIdsAsync(IEnumerable<int> ids);
+        Task<List<GamePlatform>> GetGamePlatformsByIdsAsync(IEnumerable<int> ids);
+        Task<Developer?> GetDeveloperByIdAsync(int id);
+        Task<IEnumerable<Genre>> GetAllGenresAsync();
+        Task<IEnumerable<GamePlatform>> GetAllPlatformsAsync();
+        Task<IEnumerable<Developer>> GetAllDevelopersAsync();
     }
 }

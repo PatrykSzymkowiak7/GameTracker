@@ -30,17 +30,6 @@ namespace GameTracker.Api.Tests.Infrastructure
                 {
                     options.UseSqlite(_connection);
                 });
-
-                using var serviceProvider = services.BuildServiceProvider();
-
-                using var scope = serviceProvider.CreateScope();
-
-                var dbContext = scope.ServiceProvider
-                .GetRequiredService<GameDbContext>();
-
-                dbContext.Database.EnsureCreated();
-
-                SeedDatabase(serviceProvider).GetAwaiter().GetResult();
             });
         }
 
@@ -56,12 +45,21 @@ namespace GameTracker.Api.Tests.Infrastructure
         {
             var dbContext = services.GetRequiredService<GameDbContext>();
 
+            Genre rpg = new Genre(){ Name = "RPG" };
+
+            GamePlatform pc = new GamePlatform() { Name = "PC" };
+
+            var fromSoftware = new Developer { Name = "FromSoftware"};
+
+            var nexon = new Developer { Name = "Nexon" };
+
             dbContext.Games.AddRange(
                 new Game
                 {
                     Title = "Elden Ring",
-                    Genre = "RPG",
-                    Platform = Platform.PC,
+                    Genres = [rpg],
+                    Platforms = [pc],
+                    Developer = fromSoftware,
                     Status = GameStatus.Playing,
                     Rating = 10,
                     HoursPlayed = 100
@@ -69,8 +67,9 @@ namespace GameTracker.Api.Tests.Infrastructure
                 new Game
                 {
                     Title = "The First Berserker: Khazan",
-                    Genre = "RPG",
-                    Platform = Platform.PC,
+                    Genres = [rpg],
+                    Platforms = [pc],
+                    Developer = nexon,
                     Status = GameStatus.Completed,
                     Rating = 9,
                     HoursPlayed = 50
