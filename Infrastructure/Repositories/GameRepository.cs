@@ -28,7 +28,7 @@ namespace GameTracker.Infrastructure.Repositories
             return game;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id, int userId)
         {
             var game = await _context.Games.FindAsync(id);
 
@@ -41,12 +41,14 @@ namespace GameTracker.Infrastructure.Repositories
             return true;
         }
 
-        public async Task<(IEnumerable<Game> Items, int TotalCount)> GetAllAsync(GameQueryDto query)
+        public async Task<(IEnumerable<Game> Items, int TotalCount)> GetAllAsync(GameQueryDto query, int userId)
         {
             IQueryable<Game> games = _context.Games
                 .Include(g => g.Developer)
                 .Include(g => g.Genres)
-                .Include(g => g.Platforms);
+                .Include(g => g.Platforms)
+                .Where(g => g.UserId == userId)
+                .AsQueryable();
 
             if (query.Status.HasValue)
                 games = games.Where(g => g.Status == query.Status.Value);
@@ -103,20 +105,23 @@ namespace GameTracker.Infrastructure.Repositories
             return (items, totalCount);
         }
 
-        public async Task<Game?> GetByIdAsync(int id)
+        public async Task<Game?> GetByIdAsync(int id, int userId)
         {
-            return await _context.Games.FindAsync(id);
+            return await _context.Games
+                .Where(g => g.UserId == userId && g.Id == id)
+                .FirstOrDefaultAsync();
         }
 
-        public async Task UpdateAsync(Game game)
+        public async Task UpdateAsync(Game game, int userId)
         {
             _context.Games.Update(game);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Game?> GetByTitleAsync(string title)
+        public async Task<Game?> GetByTitleAsync(string title, int userId)
         {
-            return await _context.Games.FirstOrDefaultAsync(g => g.Title == title);
+            return await _context.Games.FirstOrDefaultAsync(g => g.Title == title 
+                && g.UserId == userId);
         }
 
         public async Task<List<Genre>> GetGenresByIdsAsync(IEnumerable<int> ids)

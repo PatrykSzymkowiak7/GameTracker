@@ -8,6 +8,16 @@ namespace GameTracker.Api.ExceptionHandling
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
 
+        private List<Type> HandledExceptions = new List<Type>()
+        {
+            typeof(GameNotFoundException),
+            typeof(GameConflictException),
+            typeof(DeveloperNotFoundException),
+            typeof(GameValidationException),
+            typeof(InvalidCredentialsException),
+            typeof(RegistrationException)
+        };
+
         public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
         {
             _logger = logger;
@@ -18,10 +28,7 @@ namespace GameTracker.Api.ExceptionHandling
             Exception exception, 
             CancellationToken cancellationToken)
         {
-            if(!(exception is GameNotFoundException) && 
-                !(exception is GameConflictException) &&
-                 !(exception is DeveloperNotFoundException) &&
-                  !(exception is GameValidationException))
+            if(!HandledExceptions.Contains(typeof(Exception)))
             {
                 _logger.LogError(
                     exception,
@@ -34,6 +41,8 @@ namespace GameTracker.Api.ExceptionHandling
                 DeveloperNotFoundException => StatusCodes.Status404NotFound,
                 GameValidationException => StatusCodes.Status400BadRequest,
                 GameConflictException => StatusCodes.Status409Conflict,
+                RegistrationException => StatusCodes.Status400BadRequest,
+                InvalidCredentialsException => StatusCodes.Status401Unauthorized,
                 _ => StatusCodes.Status500InternalServerError
             };
 
@@ -43,6 +52,8 @@ namespace GameTracker.Api.ExceptionHandling
                 DeveloperNotFoundException => "Developer not found",
                 GameValidationException => "Validation error",
                 GameConflictException => "Game conflict",
+                RegistrationException => "Registration failed",
+                InvalidCredentialsException => "Invalid credentials",
                 _ => "Internal server error"
             };
 
@@ -51,6 +62,8 @@ namespace GameTracker.Api.ExceptionHandling
                 GameNotFoundException => exception.Message,
                 DeveloperNotFoundException => exception.Message,
                 GameConflictException => exception.Message,
+                InvalidCredentialsException => exception.Message,
+                RegistrationException => exception.Message,
                 _ => "An unhandlex exception occured."
             };
 
@@ -60,6 +73,12 @@ namespace GameTracker.Api.ExceptionHandling
                 Title = title,
                 Detail = detail
             };
+
+            if(exception is RegistrationException registrationException)
+            {
+                problemDetails.Extensions["errors"] =
+                    registrationException.Errors;
+            }
 
             httpContext.Response.StatusCode = statusCode;
 

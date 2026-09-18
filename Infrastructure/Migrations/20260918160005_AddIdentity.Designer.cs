@@ -3,6 +3,7 @@ using System;
 using GameTracker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(GameDbContext))]
-    partial class GameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260918160005_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.30");
@@ -95,10 +98,10 @@ namespace GameTracker.Infrastructure.Migrations
 
                     b.HasIndex("DeveloperId");
 
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("Title", "UserId")
+                    b.HasIndex("Title")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Games");
                 });

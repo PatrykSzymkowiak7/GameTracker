@@ -1,10 +1,17 @@
 ﻿using GameTracker.Application.Interfaces;
 using GameTracker.Domain.Entities;
+using GameTracker.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameTracker.Infrastructure.Data
 {
-    public class GameDbContext : DbContext
+    public class GameDbContext 
+        : IdentityDbContext<
+            ApplicationUser, 
+            IdentityRole<int>, 
+            int>
     {
         public GameDbContext(DbContextOptions<GameDbContext> options)
             : base(options)
@@ -27,7 +34,7 @@ namespace GameTracker.Infrastructure.Data
                 .IsRequired(true);
 
             modelBuilder.Entity<Game>()
-                .HasIndex(g => g.Title)
+                .HasIndex(g => new { g.Title, g.UserId })
                 .IsUnique();
 
             modelBuilder.Entity<Game>()
@@ -53,6 +60,13 @@ namespace GameTracker.Infrastructure.Data
             modelBuilder.Entity<GamePlatform>()
                 .HasIndex(p => p.Name)
                 .IsUnique();
+
+            modelBuilder.Entity<Game>()
+                .HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(g => g.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }
