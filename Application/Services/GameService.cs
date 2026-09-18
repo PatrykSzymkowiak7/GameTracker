@@ -11,16 +11,20 @@ namespace GameTracker.Application.Services
     {
         private readonly IGameRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GameService(IGameRepository repository, IMapper mapper)
+        public GameService(IGameRepository repository, 
+            IMapper mapper, 
+            ICurrentUserService currentUserService)
         {
             _repository = repository;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<GameDto> CreateAsync(CreateGameDto dto)
         {
-            var existingGame = await _repository.GetByTitleAsync(dto.Title);
+            var existingGame = await _repository.GetByTitleAsync(dto.Title, _currentUserService.UserId);
 
             if(existingGame is not null)
                 throw new GameConflictException($"Game '{dto.Title}' already exists.");
@@ -60,6 +64,7 @@ namespace GameTracker.Application.Services
 
             game.Platforms = platforms;
             game.Genres = genres;
+            game.UserId = _currentUserService.UserId;
 
             var createdGame = await _repository.CreateAsync(game);
 
@@ -68,12 +73,12 @@ namespace GameTracker.Application.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            return await _repository.DeleteAsync(id);
+            return await _repository.DeleteAsync(id, _currentUserService.UserId);
         }
 
         public async Task<PagedResultDto<GameDto>> GetAllAsync(GameQueryDto query)
         {
-            var result = await _repository.GetAllAsync(query);
+            var result = await _repository.GetAllAsync(query, _currentUserService.UserId);
 
             var gameDtos = _mapper.Map<IEnumerable<GameDto>>(result.Items);
 
@@ -88,7 +93,7 @@ namespace GameTracker.Application.Services
 
         public async Task<GameDto> GetByIdAsync(int id)
         {
-            var game = await _repository.GetByIdAsync(id);
+            var game = await _repository.GetByIdAsync(id, _currentUserService.UserId);
 
             if (game is null)
                 throw new GameNotFoundException(id);
@@ -119,14 +124,14 @@ namespace GameTracker.Application.Services
 
         public async Task<GameDto?> UpdateAsync(int id, UpdateGameDto dto)
         {
-            var game = await _repository.GetByIdAsync(id);
+            var game = await _repository.GetByIdAsync(id, _currentUserService.UserId);
 
             if (game is null)
                 return null;
 
             _mapper.Map(dto, game);
 
-            await _repository.UpdateAsync(game);
+            await _repository.UpdateAsync(game, _currentUserService.UserId);
 
             return _mapper.Map<GameDto>(game);
         }

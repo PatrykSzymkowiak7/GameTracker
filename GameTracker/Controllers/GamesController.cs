@@ -3,9 +3,11 @@ using GameTracker.Application.DTOs;
 using GameTracker.Application.Interfaces;
 using GameTracker.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GameTracker.Api.Controllers
 {
+    [Authorize]
     [ApiVersion(1.0)]
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]

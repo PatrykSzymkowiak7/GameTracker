@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameTracker.Domain.Entities
+namespace GameTracker.Application.Interfaces
 {
-    public class User
+    public interface ICurrentUserService
     {
-
+        int UserId { get; }
     }
 }

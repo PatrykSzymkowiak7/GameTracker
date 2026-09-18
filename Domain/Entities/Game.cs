@@ -13,5 +13,6 @@ namespace GameTracker.Domain.Entities
         public Developer? Developer { get; set; }
         public ICollection<Genre> Genres { get; set; } = new List<Genre>();
         public ICollection<GamePlatform> Platforms { get; set; } = new List<GamePlatform>();
+        public int UserId { get; set; }
     }
 }

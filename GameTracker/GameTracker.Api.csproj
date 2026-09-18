@@ -4,11 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>39042ad8-c812-4054-b60e-957e571311c6</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc" Version="8.0.0" />
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.30" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

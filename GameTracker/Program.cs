@@ -8,6 +8,15 @@ using AutoMapper;
 using System.Text.Json.Serialization;
 using GameTracker.Api.ExceptionHandling;
 using Asp.Versioning;
+using GameTracker.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using GameTracker.Infrastructure.Authentication;
+using Microsoft.Extensions.Options;
+using GameTracker.Api.Services;
+using Microsoft.OpenApi.Models;
 
 const string MigrationAssembly = "GameTracker.Infrastructure";
 
@@ -41,7 +50,34 @@ builder.Services.AddControllers()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -64,6 +100,59 @@ builder.Services
         options.ReportApiVersions = true;
     });
 
+builder.Services
+    .AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole<int>>()
+    .AddEntityFrameworkStores<GameDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+var jwtOptions = builder.Configuration
+    .GetSection("Jwt")
+    .Get<JwtOptions>()
+    ?? throw new InvalidOperationException("Jwt configuration is missing");
+
+var jwtKey = Encoding.UTF8.GetBytes(jwtOptions.Key);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwtOptions.Audience,
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
+
+            ValidateLifetime = true,
+
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection("Jwt"));
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+
+    options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+});
+
 var app = builder.Build();
 
 using(var scope = app.Services.CreateScope())
@@ -82,6 +171,7 @@ app.UseSwaggerUI();
 
 // app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

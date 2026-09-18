@@ -10,12 +10,12 @@ namespace GameTracker.Application.Interfaces
 {
     public interface IGameRepository
     {
-        Task<(IEnumerable<Game> Items, int TotalCount)> GetAllAsync(GameQueryDto query);
-        Task<Game?> GetByIdAsync(int id);
+        Task<(IEnumerable<Game> Items, int TotalCount)> GetAllAsync(GameQueryDto query, int userId);
+        Task<Game?> GetByIdAsync(int id, int userId);
         Task<Game> CreateAsync(Game game);
-        Task UpdateAsync(Game game);
-        Task<bool> DeleteAsync(int id);
-        Task<Game?> GetByTitleAsync(string title);
+        Task UpdateAsync(Game game, int userId);
+        Task<bool> DeleteAsync(int id, int userId);
+        Task<Game?> GetByTitleAsync(string title, int userId);
         Task<List<Genre>> GetGenresByIdsAsync(IEnumerable<int> ids);
         Task<List<GamePlatform>> GetGamePlatformsByIdsAsync(IEnumerable<int> ids);
         Task<Developer?> GetDeveloperByIdAsync(int id);

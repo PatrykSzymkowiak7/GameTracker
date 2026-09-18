@@ -20,6 +20,7 @@ namespace GameTracker.Application.Tests
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 10,
                 HoursPlayed = 100,
+                UserId = 1,
                 Genres = new List<Genre>
                 { 
                     new Genre { Id = 1, Name = "RPG" } 
@@ -33,7 +34,7 @@ namespace GameTracker.Application.Tests
             var repositoryMock = new Mock<IGameRepository>();
 
             repositoryMock
-                .Setup(r => r.GetByIdAsync(1))
+                .Setup(r => r.GetByIdAsync(1, 1))
                 .ReturnsAsync(game);
 
             var mapperMock = new Mock<IMapper>();
@@ -59,9 +60,14 @@ namespace GameTracker.Application.Tests
                 .Setup(m => m.Map<GameDto>(game))
                 .Returns(expectedDto);
 
+            var currentUserServiceMock = new Mock<ICurrentUserService>();
+            currentUserServiceMock.Setup(m => m.UserId)
+                .Returns(1);
+
             var service = new GameService(
                 repositoryMock.Object,
-                mapperMock.Object);
+                mapperMock.Object, 
+                currentUserServiceMock.Object);
 
             var result = await service.GetByIdAsync(1);
 
@@ -74,14 +80,19 @@ namespace GameTracker.Application.Tests
             var repositoryMock = new Mock<IGameRepository>();
 
             repositoryMock
-                .Setup(r => r.GetByIdAsync(999))
+                .Setup(r => r.GetByIdAsync(999, 1))
                 .ReturnsAsync((Game?)null);
 
             var mapperMock = new Mock<IMapper>();
 
+            var currentUserServiceMock = new Mock<ICurrentUserService>();
+            currentUserServiceMock.Setup(m => m.UserId)
+                .Returns(1);
+
             var service = new GameService(
                 repositoryMock.Object,
-                mapperMock.Object);
+                mapperMock.Object,
+                currentUserServiceMock.Object);
 
             await Assert.ThrowsAsync<GameNotFoundException>(
                 () => service.GetByIdAsync(999));
@@ -184,7 +195,7 @@ namespace GameTracker.Application.Tests
             };
 
             repositoryMock
-                .Setup(r => r.GetAllAsync(It.IsAny<GameQueryDto>()))
+                .Setup(r => r.GetAllAsync(It.IsAny<GameQueryDto>(), 1))
                 .ReturnsAsync((items, items.Count()));
 
             var mapperMock = new Mock<IMapper>();
@@ -193,9 +204,14 @@ namespace GameTracker.Application.Tests
                 .Setup(m => m.Map<IEnumerable<GameDto>>(items))
                 .Returns(expectedItems);
 
+            var currentUserServiceMock = new Mock<ICurrentUserService>();
+            currentUserServiceMock.Setup(m => m.UserId)
+                .Returns(1);
+
             var service = new GameService(
                 repositoryMock.Object,
-                mapperMock.Object);
+                mapperMock.Object,
+                currentUserServiceMock.Object);
 
             var result = await service.GetAllAsync(gameQuery);
 
