@@ -9,7 +9,7 @@ services:
 
     environment:
       ConnectionStrings__DefaultConnection: "Data Source=/app/data/GameTracker.db"
-
+      Jwt__Key: "${JWT_KEY}"
     volumes:
       - gametracker-data:/app/data
 
