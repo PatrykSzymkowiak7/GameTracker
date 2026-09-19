@@ -108,6 +108,9 @@ namespace GameTracker.Infrastructure.Repositories
         public async Task<Game?> GetByIdAsync(int id, int userId)
         {
             return await _context.Games
+                .Include(g => g.Developer)
+                .Include(g => g.Genres)
+                .Include(g => g.Platforms)
                 .Where(g => g.UserId == userId && g.Id == id)
                 .FirstOrDefaultAsync();
         }
@@ -120,7 +123,11 @@ namespace GameTracker.Infrastructure.Repositories
 
         public async Task<Game?> GetByTitleAsync(string title, int userId)
         {
-            return await _context.Games.FirstOrDefaultAsync(g => g.Title == title 
+            return await _context.Games
+                .Include(g => g.Developer)
+                .Include(g => g.Genres)
+                .Include(g => g.Platforms)
+                .FirstOrDefaultAsync(g => g.Title == title 
                 && g.UserId == userId);
         }
 
