@@ -17,6 +17,7 @@ using GameTracker.Infrastructure.Authentication;
 using Microsoft.Extensions.Options;
 using GameTracker.Api.Services;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 const string MigrationAssembly = "GameTracker.Infrastructure";
 
@@ -153,6 +154,12 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = true;
 });
 
+builder.Services
+    .AddHealthChecks()
+    .AddDbContextCheck<GameDbContext>(
+        name: "sqlite",
+        tags: new[] { "ready" });
+
 var app = builder.Build();
 
 using(var scope = app.Services.CreateScope())
@@ -173,6 +180,16 @@ app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.MapControllers();
 
