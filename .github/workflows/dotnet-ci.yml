@@ -30,6 +30,11 @@ jobs:
 
       - name: Run tests
         run: dotnet test GameTracker.sln --configuration Release --no-build --verbosity normal
+        env:
+          Jwt__Key: "GameTracker_Test_Only_Jwt_Key_2026_AtLeast32Chars!"
+          Jwt__Issuer: "GameTracker"
+          Jwt__Audience: "GameTracker.Api"
+          Jwt__ExpirationMinutes: "60"
 
       - name: Build Docker image
         run: docker build -t gametracker-api:ci .
