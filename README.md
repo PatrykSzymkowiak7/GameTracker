@@ -198,6 +198,9 @@ Copy the returned `accessToken`, click **Authorize** in Swagger UI and provide t
 
 You can now access protected game endpoints.
 
+It is required to provide application version for some endpoints.
+Current version of the application is 1.
+
 ### 6. Check application health
 
 ```text
