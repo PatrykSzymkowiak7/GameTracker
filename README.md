@@ -225,7 +225,6 @@ To remove the containers and the database volume:
 docker compose down -v
 ```
 
-**Warning:** The second command permanently removes the persisted Docker database.
 
 ## Testing
 
