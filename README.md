@@ -72,8 +72,6 @@ Tests/
 - **Domain:** Core entities, enums and domain models.
 - **Infrastructure:** Entity Framework Core, SQLite, repositories, Identity and database migrations.
 
-The Domain layer does not depend on infrastructure concerns. The Application layer defines abstractions, while Infrastructure provides their implementations.
-
 ## Database Model
 
 The application uses Entity Framework Core with SQLite.
