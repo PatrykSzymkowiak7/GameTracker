@@ -30,7 +30,9 @@ namespace GameTracker.Infrastructure.Repositories
 
         public async Task<bool> DeleteAsync(int id, int userId)
         {
-            var game = await _context.Games.FindAsync(id);
+            var game = await _context.Games.FirstOrDefaultAsync(g => 
+                g.Id == id && 
+                g.UserId == userId);
 
             if (game is null)
                 return false;
