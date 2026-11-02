@@ -19,13 +19,11 @@ namespace GameTracker.Api.Tests
 
         private static readonly JsonSerializerOptions JsonOptions = CreateJsonOptions();
 
-        private static readonly ApplicationUser testUser = new ApplicationUser()
-        {
-            Id = 1,
-            UserName = "TestUser",
-            Email = "testuser@example.com",
-            EmailConfirmed = true
-        };
+        private const string ApiVersion = "v1";
+
+        private const string TestUsernameA = "testuserA";
+        private const string TestUsernameB = "testuserB";
+        private const string TestPassword = "Test123!";
 
         private static JsonSerializerOptions CreateJsonOptions()
         {
@@ -44,25 +42,43 @@ namespace GameTracker.Api.Tests
             _factory = factory;
         }
 
-        private async Task CreateAuthenticatedUserAsync(HttpClient client)
+        private async Task CreateAuthenticatedUserAsync(HttpClient client,
+            string userName, 
+            string password)
         {
             var loginResponse = await client.PostAsJsonAsync(
                 "/api/auth/login",
                 new LoginDto
                 {
-                    Username = "testuser",
-                    Password = "Test123!"
+                    Username = userName,
+                    Password = password
                 });
 
             loginResponse.EnsureSuccessStatusCode();
 
             var authResponse = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
+
             Assert.NotNull(authResponse);
 
             client.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue(
                     "Bearer",
                     authResponse.AccessToken);
+        }
+
+        private async Task RegisterUserAsync(HttpClient client,
+            string userName,
+            string password)
+        {
+            var registerResponse = await client.PostAsJsonAsync($"/api/auth/register",
+                new RegisterDto
+                {
+                    Username = userName,
+                    Email = $"{userName}@example.com",
+                    Password = password
+                });
+
+            registerResponse.EnsureSuccessStatusCode();
         }
 
         [Fact]
@@ -72,9 +88,9 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
-            var response = await client.GetAsync("/api/v1/Games");
+            var response = await client.GetAsync($"/api/{ApiVersion}/Games");
 
             response.EnsureSuccessStatusCode();
         }
@@ -86,9 +102,9 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
-            var response = await client.GetAsync("api/v1/Games");
+            var response = await client.GetAsync($"api/{ApiVersion}/Games");
 
             var responseBody = await response.Content.ReadAsStringAsync();
             var authHeader = string.Join(
@@ -124,7 +140,7 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
             var request = new CreateGameDto
             {
@@ -137,7 +153,7 @@ namespace GameTracker.Api.Tests
             };
 
             var response = await client.PostAsJsonAsync(
-                "api/v1/Games",
+                $"api/{ApiVersion}/Games",
                 request,
                 jsonOptions);
 
@@ -151,13 +167,13 @@ namespace GameTracker.Api.Tests
         }
 
         [Fact]
-        public async Task CreateGame_WithExistingTItle_ReturnsConflict()
+        public async Task CreateGame_WithExistingTitle_ReturnsConflict()
         {
             await _factory.ResetDatabaseAsync();
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
             var request = new CreateGameDto
             {
@@ -168,7 +184,7 @@ namespace GameTracker.Api.Tests
             };
 
             var response = await client.PostAsJsonAsync(
-                "api/v1/Games",
+                $"api/{ApiVersion}/Games",
                 request);
 
             Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
@@ -181,13 +197,13 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
-            var response = await client.DeleteAsync("api/v1/Games/1");
+            var response = await client.DeleteAsync($"api/{ApiVersion}/Games/1");
 
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-            response = await client.GetAsync("api/v1/Games/1");
+            response = await client.GetAsync($"api/{ApiVersion}/Games/1");
 
             Assert.NotNull(response);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -200,20 +216,20 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
             var request = new UpdateGameDto
             {
                 Title = "Elden Ring",
-                Genre = "RPG",
-                Platform = Platform.PC,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Completed,
                 Rating = 10,
                 HoursPlayed = 150
             };
 
             var response = await client.PutAsJsonAsync(
-                "api/v1/Games/1",
+                $"api/{ApiVersion}/Games/1",
                 request,
                 JsonOptions);
 
@@ -232,35 +248,35 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
             var request = new UpdateGameDto
             {
                 Title = "Unknown Game",
-                Genre = "RPG",
-                Platform = Platform.PC,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Backlog,
                 Rating = 5,
                 HoursPlayed = 0
             };
 
             var response = await client.PutAsJsonAsync(
-                "api/v1/Games/999",
+                $"api/{ApiVersion}/Games/999",
                 request);
 
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Fact]
-        public async Task DeleteGame_WHenGameDoesNotExist_ReturnsNotFound()
+        public async Task DeleteGame_WhenGameDoesNotExist_ReturnsNotFound()
         {
             await _factory.ResetDatabaseAsync();
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
-            var response = await client.DeleteAsync("api/v1/Games/999");
+            var response = await client.DeleteAsync($"api/{ApiVersion}/Games/999");
 
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -272,7 +288,7 @@ namespace GameTracker.Api.Tests
 
             var client = _factory.CreateClient();
 
-            await CreateAuthenticatedUserAsync(client);
+            await CreateAuthenticatedUserAsync(client,TestUsernameA,TestPassword);
 
             var request = new CreateGameDto
             {
@@ -285,11 +301,215 @@ namespace GameTracker.Api.Tests
             };
 
             var response = await client.PostAsJsonAsync(
-                "/api/v1/Games",
+                $"/api/{ApiVersion}/Games",
                 request,
                 JsonOptions);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task User_CannotAccessAnotherUsersGame()
+        {
+            await _factory.ResetDatabaseAsync();
+
+            using var userAClient = _factory.CreateClient();
+
+            // User A already exists in the Seed, no need to register
+            await CreateAuthenticatedUserAsync(
+                userAClient,
+                TestUsernameA, 
+                TestPassword);
+
+            var ownerResponse = await userAClient.GetAsync($"/api/{ApiVersion}/Games/1");
+
+            Assert.Equal(HttpStatusCode.OK, ownerResponse.StatusCode);
+
+            using var userBClient = _factory.CreateClient();
+
+            // Register new user and check if he can access a game which not belongs to him
+            await RegisterUserAsync(
+                userBClient, 
+                TestUsernameB, 
+                TestPassword);
+
+            await CreateAuthenticatedUserAsync(
+                userBClient, 
+                TestUsernameB, 
+                TestPassword);
+
+            var userBResponse = await userBClient.GetAsync($"/api/{ApiVersion}/Games/1");
+
+            Assert.Equal(HttpStatusCode.NotFound, userBResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task User_CannotUpdateAnotherUsersGame()
+        {
+            await _factory.ResetDatabaseAsync();
+
+            using var userBClient = _factory.CreateClient();
+
+            await RegisterUserAsync(
+                userBClient,
+                TestUsernameB,
+                TestPassword);
+
+            await CreateAuthenticatedUserAsync(
+                userBClient,
+                TestUsernameB,
+                TestPassword);
+
+            var updateRequest = new UpdateGameDto
+            {
+                Title = "Modified Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 200
+            };
+
+            var response = await userBClient.PutAsJsonAsync(
+                $"/api/{ApiVersion}/Games/1",
+                updateRequest);
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task User_CannotDeleteAnotherUserGame()
+        {
+            await _factory.ResetDatabaseAsync();
+
+            using var userAClient = _factory.CreateClient();
+
+            await CreateAuthenticatedUserAsync(
+                userAClient,
+                TestUsernameA,
+                TestPassword);
+
+            using var userBClient = _factory.CreateClient();
+
+            await RegisterUserAsync(
+                userBClient,
+                TestUsernameB,
+                TestPassword);
+
+            await CreateAuthenticatedUserAsync(
+                userBClient,
+                TestUsernameB,
+                TestPassword);
+
+            var deleteResponse = await userBClient.DeleteAsync(
+                $"/api/{ApiVersion}/Games/1");
+
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+
+            var getReponse = await userAClient.GetAsync(
+                $"/api/{ApiVersion}/Games/1");
+
+            Assert.Equal(HttpStatusCode.OK, getReponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task User_CanOnlySeeTheirOwnGames()
+        {
+            await _factory.ResetDatabaseAsync();
+
+            using var userAClient = _factory.CreateClient();
+
+            await CreateAuthenticatedUserAsync(
+                userAClient,
+                TestUsernameA,
+                TestPassword);
+
+            using var userBClient = _factory.CreateClient();
+
+            await RegisterUserAsync(
+                userBClient,
+                TestUsernameB,
+                TestPassword);
+
+            await CreateAuthenticatedUserAsync(
+                userBClient,
+                TestUsernameB,
+                TestPassword);
+
+            var getAResponse = await userAClient.GetAsync(
+                $"/api/{ApiVersion}/Games");
+            var getBResponse = await userBClient.GetAsync(
+                $"/api/{ApiVersion}/Games");
+
+            Assert.Equal(HttpStatusCode.OK, getAResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, getBResponse.StatusCode);
+
+            var userAJson = await getAResponse.Content.ReadFromJsonAsync<JsonDocument>();
+            var userBJson = await getBResponse.Content.ReadFromJsonAsync<JsonDocument>();
+
+            Assert.NotNull(userAJson);
+            Assert.NotNull(userBJson);
+
+            var userAGamesCount = userAJson.RootElement.GetProperty("items").GetArrayLength();
+            var userBGamesCount = userBJson.RootElement.GetProperty("items").GetArrayLength();
+
+            Assert.Equal(2, userAGamesCount);
+            Assert.Equal(0, userBGamesCount);
+        }
+
+        [Fact]
+        public async Task DifferentUsers_CanHaveGamesWithSameTitle()
+        {
+            await _factory.ResetDatabaseAsync();
+
+            using var clientA = _factory.CreateClient();
+            using var clientB = _factory.CreateClient();
+
+            await CreateAuthenticatedUserAsync(
+                clientA, 
+                TestUsernameA, 
+                TestPassword);
+
+            await RegisterUserAsync(
+                clientB,
+                TestUsernameB,
+                TestPassword);
+
+            await CreateAuthenticatedUserAsync(
+                clientB, 
+                TestUsernameB, 
+                TestPassword);
+
+            var request = new CreateGameDto
+            {
+                Title = "Test Game",
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = GameStatus.Backlog,
+            };
+
+            var responseA = await clientA.PostAsJsonAsync(
+                $"/api/{ApiVersion}/Games",
+                request);
+
+            var responseB = await clientB.PostAsJsonAsync(
+                $"/api/{ApiVersion}/Games",
+                request);
+
+            Assert.Equal(HttpStatusCode.Created, responseA.StatusCode);
+            Assert.Equal(HttpStatusCode.Created, responseB.StatusCode);
+
+            responseA = await clientA.PostAsJsonAsync(
+                $"/api/{ApiVersion}/Games",
+                request);
+
+            responseB = await clientB.PostAsJsonAsync(
+                $"/api/{ApiVersion}/Games",
+                request);
+
+            Assert.Equal(HttpStatusCode.Conflict, responseA.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, responseB.StatusCode);
         }
     }
 }

@@ -89,8 +89,8 @@ namespace GameTracker.Api.Tests.Infrastructure
 
             var testUser = new ApplicationUser()
             {
-                UserName = "testuser",
-                Email = "testuser@example.com",
+                UserName = "testuserA",
+                Email = "testuserA@example.com",
                 EmailConfirmed = true
             };
 
