@@ -144,7 +144,7 @@ The API does not accept `UserId` from the game creation DTO. The server assigns 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/PatrykSzymkowiak7/GameTracker
 cd GameTracker
 ```
 
