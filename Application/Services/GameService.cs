@@ -131,6 +131,12 @@ namespace GameTracker.Application.Services
 
             _mapper.Map(dto, game);
 
+            var genres = await _repository.GetGenresByIdsAsync(dto.GenreIds);
+            var platforms = await _repository.GetGamePlatformsByIdsAsync(dto.PlatformIds);
+
+            game.Genres = genres;
+            game.Platforms = platforms;
+
             await _repository.UpdateAsync(game, _currentUserService.UserId);
 
             return _mapper.Map<GameDto>(game);
