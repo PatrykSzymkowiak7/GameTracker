@@ -132,7 +132,14 @@ namespace GameTracker.Application.Services
             _mapper.Map(dto, game);
 
             var genres = await _repository.GetGenresByIdsAsync(dto.GenreIds);
+
+            if (genres.Count != dto.GenreIds.Distinct().Count())
+                throw new GameValidationException("One or more genres do not exist");
+
             var platforms = await _repository.GetGamePlatformsByIdsAsync(dto.PlatformIds);
+
+            if (platforms.Count != dto.PlatformIds.Distinct().Count())
+                throw new GameValidationException("One or more platforms do not exist");
 
             game.Genres = genres;
             game.Platforms = platforms;
