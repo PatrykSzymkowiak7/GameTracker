@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\GameTracker.Application.csproj" />
-    <ProjectReference Include="..\Infrastructure\GameTracker.Infrastructure.csproj" />
+	  <ProjectReference Include="..\GameTracker.Application\GameTracker.Application.csproj" />
+	  <ProjectReference Include="..\GameTracker.Infrastructure\GameTracker.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

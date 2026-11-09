@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.37216.2
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Api", "GameTracker\GameTracker.Api.csproj", "{34BBDD72-85F7-4485-A790-7B902F89976E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Api", "src\GameTracker.Api\GameTracker.Api.csproj", "{34BBDD72-85F7-4485-A790-7B902F89976E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Domain", "Domain\GameTracker.Domain.csproj", "{D83135A9-840D-438B-B564-921F44EB3232}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Domain", "src\GameTracker.Domain\GameTracker.Domain.csproj", "{D83135A9-840D-438B-B564-921F44EB3232}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application", "Application\GameTracker.Application.csproj", "{BDBC4D19-F703-4062-B64F-41AE5CF58E24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application", "src\GameTracker.Application\GameTracker.Application.csproj", "{BDBC4D19-F703-4062-B64F-41AE5CF58E24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Infrastructure", "Infrastructure\GameTracker.Infrastructure.csproj", "{F255AC2A-22F3-40A7-9160-2667505097DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Infrastructure", "src\GameTracker.Infrastructure\GameTracker.Infrastructure.csproj", "{F255AC2A-22F3-40A7-9160-2667505097DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application.Tests", "Tests\GameTracker.Application.Tests.csproj", "{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Application.Tests", "tests\GameTracker.Application.Tests\GameTracker.Application.Tests.csproj", "{8A4B7D85-F215-4767-9EB0-6E587CFBF81C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Api.Tests", "GameTracker.Api.Tests\GameTracker.Api.Tests.csproj", "{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameTracker.Api.Tests", "tests\GameTracker.Api.Tests\GameTracker.Api.Tests.csproj", "{0C4B24E1-FD4F-4CFB-B89C-8894BB382633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
