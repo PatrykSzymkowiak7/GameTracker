@@ -39,31 +39,24 @@ GameTracker allows users to manage their own game libraries, track progress, fil
 
 ## Architecture
 
-The solution follows Clean Architecture principles and is divided into four main projects.
+The solution follows Clean Architecture principles and is divided into four main projects and additional test projects.
 
 ```text
-GameTracker.sln
-│
-├── GameTracker
-│   └── GameTracker.Api
-│
-├── Application
-│   └── GameTracker.Application
-│
-├── Domain
-│   └── GameTracker.Domain
-│
-└── Infrastructure
-    └── GameTracker.Infrastructure
-```
-
-Additional test projects:
-
-```text
-GameTracker.Api.Tests
-Tests/
-└── GameTracker.Application.Tests
-```
+GameTracker/
+├── .github/
+│   └── workflows/
+├── src/
+│   ├── GameTracker.Api/
+│   ├── GameTracker.Application/
+│   ├── GameTracker.Domain/
+│   └── GameTracker.Infrastructure/
+├── tests/
+│   ├── GameTracker.Api.Tests/
+│   └── GameTracker.Application.Tests/
+├── Dockerfile
+├── compose.yml
+├── GameTracker.sln
+└── README.md
 
 ### Layer responsibilities
 

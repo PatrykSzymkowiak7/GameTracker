@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\GameTracker.Domain.csproj" />
+    <ProjectReference Include="..\GameTracker.Domain\GameTracker.Domain.csproj" />
   </ItemGroup>
 
 </Project>

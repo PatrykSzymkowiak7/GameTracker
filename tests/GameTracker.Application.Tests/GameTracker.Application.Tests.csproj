@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\GameTracker.Application.csproj" />
-    <ProjectReference Include="..\Domain\GameTracker.Domain.csproj" />
+     <ProjectReference Include="..\..\src\GameTracker.Application\GameTracker.Application.csproj" />
+	 <ProjectReference Include="..\..\src\GameTracker.Domain\GameTracker.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

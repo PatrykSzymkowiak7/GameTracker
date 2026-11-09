@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GameTracker\GameTracker.Api.csproj" />
+	  <ProjectReference Include="..\..\src\GameTracker.Api\GameTracker.Api.csproj" />
   </ItemGroup>
 
     <ItemGroup>
