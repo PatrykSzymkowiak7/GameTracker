@@ -28,45 +28,7 @@ namespace GameTracker.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Game>()
-                .Property(g => g.Status)
-                .HasConversion<string>()
-                .IsRequired(true);
-
-            modelBuilder.Entity<Game>()
-                .HasIndex(g => new { g.Title, g.UserId })
-                .IsUnique();
-
-            modelBuilder.Entity<Game>()
-                .HasOne(g => g.Developer)
-                .WithMany(d => d.Games)
-                .HasForeignKey(g => g.DeveloperId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Game>()
-                .HasMany(game => game.Genres)
-                .WithMany(genre => genre.Games)
-                .UsingEntity(j => j.ToTable("GameGenres"));
-
-            modelBuilder.Entity<Game>()
-                .HasMany(g => g.Platforms)
-                .WithMany(g => g.Games)
-                .UsingEntity(j => j.ToTable("GamePlatforms"));
-
-            modelBuilder.Entity<Developer>()
-                .HasIndex(g => g.Name)
-                .IsUnique();
-
-            modelBuilder.Entity<GamePlatform>()
-                .HasIndex(p => p.Name)
-                .IsUnique();
-
-            modelBuilder.Entity<Game>()
-                .HasOne<ApplicationUser>()
-                .WithMany()
-                .HasForeignKey(g => g.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(GameDbContext).Assembly);
         }
     }
 }
