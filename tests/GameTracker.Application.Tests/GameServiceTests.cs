@@ -13,23 +13,22 @@ namespace GameTracker.Application.Tests
         [Fact]
         public async Task GetByIdAsync_WhenGameExistis_ReturnsGameDto()
         {
-            var game = new Game
-            {
-                Id = 1,
-                Title = "Elden Ring",
-                Status = GameTracker.Domain.Enums.GameStatus.Playing,
-                Rating = 10,
-                HoursPlayed = 100,
-                UserId = 1,
-                Genres = new List<Genre>
-                { 
-                    new Genre { Id = 1, Name = "RPG" } 
+            var game = new Game(
+                title: "Elden Ring",
+                status: GameTracker.Domain.Enums.GameStatus.Playing,
+                rating: 10,
+                hoursPlayed: 100,
+                userId: 1,
+                genres: new List<Genre>
+                {
+                    new Genre (name: "RPG")
                 },
-                Platforms = new List<GamePlatform>
-                { 
-                    new GamePlatform { Id = 1, Name = "PC" } 
-                }
-            };
+                platforms: new List<GamePlatform>
+                {
+                    new GamePlatform(name: "PC")
+                },
+                developer: new Developer(name: "Test")
+                );
 
             var repositoryMock = new Mock<IGameRepository>();
 
@@ -103,39 +102,37 @@ namespace GameTracker.Application.Tests
         {
             var repositoryMock = new Mock<IGameRepository>();
 
-            var game1 = new Game
-            {
-                Id = 1,
-                Title = "Elden Ring",
-                Genres = new List<Genre>
+            var game1 = new Game(
+                title: "Elden Ring",
+                genres: new List<Genre>
                 {
-                    new Genre { Id = 1, Name = "RPG" }
+                    new Genre(name: "RPG")
                 },
-                Platforms = new List<GamePlatform>
+                platforms: new List<GamePlatform>
                 {
-                    new GamePlatform { Id = 1, Name = "PC" }
+                    new GamePlatform(name: "PC")
                 },
-                Status = GameTracker.Domain.Enums.GameStatus.Playing,
-                Rating = 10,
-                HoursPlayed = 100
-            };
+                status: GameTracker.Domain.Enums.GameStatus.Playing,
+                rating: 10,
+                hoursPlayed: 100,
+                developer: new Developer("From Software"),
+                userId: 1);
 
-            var game2 = new Game
-            {
-                Id = 2,
-                Title = "The First Berserker: Khazan",
-                Genres = new List<Genre>
+            var game2 = new Game(
+                title: "The First Berserker: Khazan",
+                genres: new List<Genre>
                 {
-                    new Genre { Id = 1, Name = "RPG" }
+                    new Genre(name: "RPG" )
                 },
-                Platforms = new List<GamePlatform>
+                platforms: new List<GamePlatform>
                 {
-                    new GamePlatform { Id = 1, Name = "PC" }
+                    new GamePlatform(name: "PC")
                 },
-                Status = GameTracker.Domain.Enums.GameStatus.Playing,
-                Rating = 9,
-                HoursPlayed = 50
-            };
+                status: GameTracker.Domain.Enums.GameStatus.Playing,
+                rating: 9,
+                hoursPlayed: 50,
+                developer: new Developer("From Software"),
+                userId: 1);
 
             IEnumerable<Game> items = new List<Game>() { game1, game2 };
 

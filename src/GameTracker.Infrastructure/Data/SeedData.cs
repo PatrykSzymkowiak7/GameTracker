@@ -9,31 +9,31 @@ namespace GameTracker.Infrastructure.Data
             if(!context.Genres.Any())
             {
                 context.Genres.AddRange(
-                    new Genre { Name = "RPG" },
-                    new Genre { Name = "Action"},
-                    new Genre { Name = "Adventure"},
-                    new Genre { Name = "Strategy"}
+                    new Genre("RPG" ),
+                    new Genre("Action"),
+                    new Genre("Adventure"),
+                    new Genre("Strategy")
                 );
             }
 
             if(!context.Platforms.Any())
             {
                 context.Platforms.AddRange(
-                    new GamePlatform { Name = "PC" },
-                    new GamePlatform { Name = "PS5" },
-                    new GamePlatform { Name = "Xbox"},
-                    new GamePlatform { Name = "Switch"}
+                    new GamePlatform("PC"),
+                    new GamePlatform("PS5"),
+                    new GamePlatform("Xbox"),
+                    new GamePlatform("Switch")
                 );
             }
 
             if(!context.Developers.Any())
             {
                 context.Developers.AddRange(
-                    new Developer { Name = "FromSoftware" },
-                    new Developer { Name = "CD Projekt Red" },
-                    new Developer { Name = "Nexon" },
-                    new Developer { Name = "SEGA" },
-                    new Developer { Name = "ATLUS" }
+                    new Developer("FromSoftware"),
+                    new Developer("CD Projekt Red"),
+                    new Developer("Nexon"),
+                    new Developer("SEGA"),
+                    new Developer("ATLUS")
                 );
             }
 
