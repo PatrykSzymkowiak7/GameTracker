@@ -14,8 +14,12 @@ namespace GameTracker.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Developer> builder)
         {
-            builder.HasIndex(g => g.Name)
+            builder.HasIndex(d => d.Name)
                 .IsUnique();
+
+            builder.Navigation(d => d.Games)
+                .HasField("_games")
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

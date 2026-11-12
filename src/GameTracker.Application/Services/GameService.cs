@@ -24,47 +24,59 @@ namespace GameTracker.Application.Services
 
         public async Task<GameDto> CreateAsync(CreateGameDto dto)
         {
-            var existingGame = await _repository.GetByTitleAsync(dto.Title, _currentUserService.UserId);
-
-            if(existingGame is not null)
-                throw new GameConflictException($"Game '{dto.Title}' already exists.");
-
-            var game = _mapper.Map<Game>(dto);
-
-            if(dto.DeveloperId.HasValue)
+            if (dto.GenreIds.Distinct().Count() != dto.GenreIds.Count)
             {
-                var developer = await _repository
-                    .GetDeveloperByIdAsync(dto.DeveloperId.Value);
+                throw new GameValidationException(
+                    "Duplicate genre IDs are not allowed.");
+            }
 
-                if(developer is null)
-                {
-                    throw new DeveloperNotFoundException(dto.DeveloperId.Value);
-                }
-
-                game.Developer = developer;
+            if (dto.PlatformIds.Distinct().Count() != dto.PlatformIds.Count)
+            {
+                throw new GameValidationException(
+                    "Duplicate platform IDs are not allowed");
             }
 
             var genres = await _repository
                 .GetGenresByIdsAsync(dto.GenreIds);
 
-            if(genres.Count != dto.GenreIds.Count)
+            if (genres.Count != dto.GenreIds.Count)
             {
                 throw new GameValidationException(
-                    "One or more specified genres do not exist.");
+                    "One or more specified genres do not exist");
             }
 
             var platforms = await _repository
                 .GetGamePlatformsByIdsAsync(dto.PlatformIds);
 
-            if(platforms.Count != dto.PlatformIds.Count)
+            if (platforms.Count != dto.PlatformIds.Count)
             {
                 throw new GameValidationException(
                     "One or more specified platforms do not exist.");
             }
 
-            game.Platforms = platforms;
-            game.Genres = genres;
-            game.UserId = _currentUserService.UserId;
+            var existingGame = await _repository.GetByTitleAsync(dto.Title, _currentUserService.UserId);
+
+            if(existingGame is not null)
+                throw new GameConflictException($"Game '{dto.Title}' already exists.");
+
+            Developer? developer = null;
+            if(dto.DeveloperId.HasValue)
+            {
+                developer = await _repository
+                    .GetDeveloperByIdAsync(dto.DeveloperId.Value);
+
+                if(developer is null)
+                    throw new DeveloperNotFoundException(dto.DeveloperId.Value);
+            }
+
+            Game game = new Game(dto.Title, 
+                dto.Status, 
+                dto.Rating, 
+                dto.HoursPlayed,
+                developer,
+                genres, 
+                platforms, 
+                _currentUserService.UserId);
 
             var createdGame = await _repository.CreateAsync(game);
 
@@ -124,25 +136,35 @@ namespace GameTracker.Application.Services
 
         public async Task<GameDto?> UpdateAsync(int id, UpdateGameDto dto)
         {
+            if (dto.GenreIds.Count != dto.GenreIds.Distinct().Count())
+                throw new GameValidationException("Duplicate genre IDs are not allowed");
+
+            if (dto.PlatformIds.Count != dto.PlatformIds.Distinct().Count())
+                throw new GameValidationException("Duplicate platform IDs are not allowed");
+
+            var genres = await _repository.GetGenresByIdsAsync(dto.GenreIds);
+
+            if (genres.Count != dto.GenreIds.Count)
+                throw new GameValidationException("One or more genres do not exist");
+
+            var platforms = await _repository.GetGamePlatformsByIdsAsync(dto.PlatformIds);
+
+            if (platforms.Count != dto.PlatformIds.Count)
+                throw new GameValidationException("One or more platforms do not exist");
+
             var game = await _repository.GetByIdAsync(id, _currentUserService.UserId);
 
             if (game is null)
                 return null;
 
-            _mapper.Map(dto, game);
+            game.UpdateDetals(
+                title: dto.Title, 
+                status: dto.Status, 
+                rating: dto.Rating, 
+                hoursPlayed: dto.HoursPlayed);
 
-            var genres = await _repository.GetGenresByIdsAsync(dto.GenreIds);
-
-            if (genres.Count != dto.GenreIds.Distinct().Count())
-                throw new GameValidationException("One or more genres do not exist");
-
-            var platforms = await _repository.GetGamePlatformsByIdsAsync(dto.PlatformIds);
-
-            if (platforms.Count != dto.PlatformIds.Distinct().Count())
-                throw new GameValidationException("One or more platforms do not exist");
-
-            game.Genres = genres;
-            game.Platforms = platforms;
+            game.SetGenres(genres);
+            game.SetPlatforms(platforms);
 
             await _repository.UpdateAsync(game, _currentUserService.UserId);
 

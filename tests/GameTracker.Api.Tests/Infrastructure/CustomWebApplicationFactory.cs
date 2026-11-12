@@ -104,35 +104,33 @@ namespace GameTracker.Api.Tests.Infrastructure
                 throw new InvalidOperationException($"Could not create test user: {errors}");
             }
 
-            var rpg = new Genre(){ Name = "RPG" };
-            var pc = new GamePlatform() { Name = "PC" };
+            var rpg = new Genre("RPG");
+            var pc = new GamePlatform("PC");
 
-            var fromSoftware = new Developer { Name = "FromSoftware"};
-            var nexon = new Developer { Name = "Nexon" };
+            var fromSoftware = new Developer("FromSoftware");
+            var nexon = new Developer("Nexon");
 
             dbContext.Games.AddRange(
-                new Game
-                {
-                    Title = "Elden Ring",
-                    Genres = [rpg],
-                    Platforms = [pc],
-                    Developer = fromSoftware,
-                    Status = GameStatus.Playing,
-                    Rating = 10,
-                    HoursPlayed = 100,
-                    UserId = testUser.Id
-                },
-                new Game
-                {
-                    Title = "The First Berserker: Khazan",
-                    Genres = [rpg],
-                    Platforms = [pc],
-                    Developer = nexon,
-                    Status = GameStatus.Completed,
-                    Rating = 9,
-                    HoursPlayed = 50,
-                    UserId = testUser.Id
-                });
+                new Game(
+                    title: "Elden Ring",
+                    genres: [rpg],
+                    platforms: [pc],
+                    developer: fromSoftware,
+                    status: GameStatus.Playing,
+                    rating: 10,
+                    hoursPlayed: 100,
+                    userId: testUser.Id
+                ),
+                new Game(
+                    title: "The First Berserker: Khazan",
+                    genres: [rpg],
+                    platforms: [pc],
+                    developer: nexon,
+                    status: GameStatus.Completed,
+                    rating: 9,
+                    hoursPlayed: 50,
+                    userId: testUser.Id
+                ));
 
             await dbContext.SaveChangesAsync();
         }

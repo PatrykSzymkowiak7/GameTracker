@@ -150,6 +150,7 @@ namespace GameTracker.Api.Tests
                 Status = GameStatus.Backlog,
                 Rating = 9,
                 HoursPlayed = 0,
+                DeveloperId = 1
             };
 
             var response = await client.PostAsJsonAsync(
@@ -181,6 +182,9 @@ namespace GameTracker.Api.Tests
                 GenreIds = new List<int> { 1 },
                 PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Backlog,
+                DeveloperId = 1,
+                Rating = 10,
+                HoursPlayed = 100
             };
 
             var response = await client.PostAsJsonAsync(
@@ -487,6 +491,7 @@ namespace GameTracker.Api.Tests
                 GenreIds = new List<int> { 1 },
                 PlatformIds = new List<int> { 1 },
                 Status = GameStatus.Backlog,
+                DeveloperId = 1
             };
 
             var responseA = await clientA.PostAsJsonAsync(

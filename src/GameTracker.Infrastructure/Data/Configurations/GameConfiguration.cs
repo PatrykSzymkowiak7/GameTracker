@@ -27,9 +27,17 @@ namespace GameTracker.Infrastructure.Data.Configuration
                 .HasForeignKey(g => g.DeveloperId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Navigation(g => g.Genres)
+                .HasField("_genres")
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
+
             builder.HasMany(game => game.Genres)
                 .WithMany(genre => genre.Games)
                 .UsingEntity(j => j.ToTable("GameGenres"));
+
+            builder.Navigation(g => g.Platforms)
+                .HasField("_platforms")
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
 
             builder.HasMany(g => g.Platforms)
                 .WithMany(g => g.Games)
