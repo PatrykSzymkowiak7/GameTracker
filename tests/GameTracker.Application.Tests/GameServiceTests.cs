@@ -10,9 +10,27 @@ namespace GameTracker.Application.Tests
 {
     public class GameServiceTests
     {
+        private Mock<IGameRepository> _repositoryMock;
+        private Mock<ICurrentUserService> _currentUserServiceMock;
+        private Mock<IMapper> _mapperMock;
+        private GameService _gameService;
+
+        public GameServiceTests()
+        {
+            _repositoryMock = new Mock<IGameRepository>();
+            _currentUserServiceMock = new Mock<ICurrentUserService>();
+            _mapperMock = new Mock<IMapper>();
+
+            _gameService = new GameService(
+                _repositoryMock.Object, 
+                _mapperMock.Object, 
+                _currentUserServiceMock.Object);
+        }
+
         [Fact]
         public async Task GetByIdAsync_WhenGameExistis_ReturnsGameDto()
         {
+            // Arrange
             var game = new Game(
                 title: "Elden Ring",
                 status: GameTracker.Domain.Enums.GameStatus.Playing,
@@ -30,13 +48,8 @@ namespace GameTracker.Application.Tests
                 developer: new Developer(name: "Test")
                 );
 
-            var repositoryMock = new Mock<IGameRepository>();
-
-            repositoryMock
-                .Setup(r => r.GetByIdAsync(1, 1))
+            _repositoryMock.Setup(r => r.GetByIdAsync(1, 1))
                 .ReturnsAsync(game);
-
-            var mapperMock = new Mock<IMapper>();
 
             var expectedDto = new GameDto
             {
@@ -55,79 +68,58 @@ namespace GameTracker.Application.Tests
                 }
             };
 
-            mapperMock
-                .Setup(m => m.Map<GameDto>(game))
+            _mapperMock.Setup(m => m.Map<GameDto>(game))
                 .Returns(expectedDto);
 
-            var currentUserServiceMock = new Mock<ICurrentUserService>();
-            currentUserServiceMock.Setup(m => m.UserId)
+            _currentUserServiceMock.Setup(m => m.UserId)
                 .Returns(1);
 
-            var service = new GameService(
-                repositoryMock.Object,
-                mapperMock.Object, 
-                currentUserServiceMock.Object);
+            // Act
+            var result = await _gameService.GetByIdAsync(1);
 
-            var result = await service.GetByIdAsync(1);
-
+            // Assert
             Assert.Equal(expectedDto, result);
         }
 
         [Fact]
         public async Task GetByIdAsync_WhenGameDoesNotExist_ThrowGameNotFoundException()
         {
-            var repositoryMock = new Mock<IGameRepository>();
-
-            repositoryMock
-                .Setup(r => r.GetByIdAsync(999, 1))
+            _repositoryMock.Setup(r => r.GetByIdAsync(999, 1))
                 .ReturnsAsync((Game?)null);
 
-            var mapperMock = new Mock<IMapper>();
-
-            var currentUserServiceMock = new Mock<ICurrentUserService>();
-            currentUserServiceMock.Setup(m => m.UserId)
+            _currentUserServiceMock.Setup(m => m.UserId)
                 .Returns(1);
 
-            var service = new GameService(
-                repositoryMock.Object,
-                mapperMock.Object,
-                currentUserServiceMock.Object);
-
             await Assert.ThrowsAsync<GameNotFoundException>(
-                () => service.GetByIdAsync(999));
+                () => _gameService.GetByIdAsync(999));
         }
 
         [Fact]
         public async Task GetAllAsync_ReturnsSomeRecords()
         {
-            var repositoryMock = new Mock<IGameRepository>();
+            // Arrange
+            var developer = new Developer("From Software");
+            var genres = new List<Genre>() { 
+                new Genre("RPG") 
+            };
+            var platforms = new List<GamePlatform>() { 
+                new GamePlatform("PC") 
+            };
 
             var game1 = new Game(
                 title: "Elden Ring",
-                genres: new List<Genre>
-                {
-                    new Genre(name: "RPG")
-                },
-                platforms: new List<GamePlatform>
-                {
-                    new GamePlatform(name: "PC")
-                },
+                genres: genres,
+                platforms: platforms,
                 status: GameTracker.Domain.Enums.GameStatus.Playing,
                 rating: 10,
                 hoursPlayed: 100,
-                developer: new Developer("From Software"),
+                developer: developer,
                 userId: 1);
 
             var game2 = new Game(
                 title: "The First Berserker: Khazan",
-                genres: new List<Genre>
-                {
-                    new Genre(name: "RPG" )
-                },
-                platforms: new List<GamePlatform>
-                {
-                    new GamePlatform(name: "PC")
-                },
+                genres: genres,
+                platforms: platforms,
                 status: GameTracker.Domain.Enums.GameStatus.Playing,
                 rating: 9,
                 hoursPlayed: 50,
@@ -136,6 +128,13 @@ namespace GameTracker.Application.Tests
 
             IEnumerable<Game> items = new List<Game>() { game1, game2 };
 
+            var genreDtos = new List<GenreDto>() { 
+                new GenreDto() { Id = 1, Name = "RPG" } 
+            };
+            var platformDtos = new List<GamePlatformDto>() { 
+                new GamePlatformDto { Id = 1, Name = "PC" } 
+            };
+
             GameDto expectedDto1 = new GameDto
             {
                 Id = 1,
@@ -143,14 +142,8 @@ namespace GameTracker.Application.Tests
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 10,
                 HoursPlayed = 100,
-                Genres = new List<GenreDto>
-                {
-                    new GenreDto { Id = 1, Name = "RPG" }
-                },
-                Platforms = new List<GamePlatformDto>
-                {
-                    new GamePlatformDto { Id = 1, Name = "PC" }
-                }
+                Genres = genreDtos,
+                Platforms = platformDtos
             };
 
             GameDto expectedDto2 = new GameDto
@@ -160,15 +153,8 @@ namespace GameTracker.Application.Tests
                 Status = GameTracker.Domain.Enums.GameStatus.Playing,
                 Rating = 9,
                 HoursPlayed = 50,
-                Genres = new List<GenreDto>
-                {
-                    new GenreDto { Id = 1, Name = "RPG" }
-                },
-                Platforms = new List<GamePlatformDto>
-                {
-                    new GamePlatformDto { Id = 1, Name = "PC" }
-                }
-
+                Genres = genreDtos,
+                Platforms = platformDtos
             };
 
             var expectedItems = new List<GameDto> { expectedDto1, expectedDto2 };
@@ -191,33 +177,211 @@ namespace GameTracker.Application.Tests
                 SortBy = string.Empty
             };
 
-            repositoryMock
-                .Setup(r => r.GetAllAsync(It.IsAny<GameQueryDto>(), 1))
+            _repositoryMock.Setup(r => r.GetAllAsync(It.IsAny<GameQueryDto>(), 1))
                 .ReturnsAsync((items, items.Count()));
 
-            var mapperMock = new Mock<IMapper>();
-
-            mapperMock
-                .Setup(m => m.Map<IEnumerable<GameDto>>(items))
+            _mapperMock.Setup(m => m.Map<IEnumerable<GameDto>>(items))
                 .Returns(expectedItems);
 
-            var currentUserServiceMock = new Mock<ICurrentUserService>();
-            currentUserServiceMock.Setup(m => m.UserId)
+            _currentUserServiceMock.Setup(m => m.UserId)
                 .Returns(1);
 
-            var service = new GameService(
-                repositoryMock.Object,
-                mapperMock.Object,
-                currentUserServiceMock.Object);
+            // Act
+            var result = await _gameService.GetAllAsync(gameQuery);
 
-            var result = await service.GetAllAsync(gameQuery);
-
+            // Assert
             Assert.Equal(2, result.Items.Count());
 
             var resultItems = result.Items.ToList();
 
             Assert.Equal(expectedDto1.Title, resultItems[0].Title);
             Assert.Equal(expectedDto2.Title, resultItems[1].Title);
+        }
+
+        [Fact]
+        public async Task CreateAsync_CreatesGameAndReturnsDto()
+        {
+            var createGameDto = new CreateGameDto()
+            {
+                Title = "Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = Domain.Enums.GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 100
+            };
+
+            _currentUserServiceMock.Setup(x => x.UserId)
+                .Returns(1);
+
+            _repositoryMock.Setup(x => x.GetDeveloperByIdAsync(1))
+                .ReturnsAsync(new Developer("From Software"));
+
+            _repositoryMock.Setup(x => x.GetGenresByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<Genre>() { new Genre("RPG") });
+
+            _repositoryMock.Setup(x => x.GetGamePlatformsByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<GamePlatform>() { new GamePlatform("PC") });
+
+            _repositoryMock.Setup(x => x.CreateAsync(It.IsAny<Game>()))
+                .ReturnsAsync((Game game) => game);
+
+            var gameDto = await _gameService.CreateAsync(createGameDto);
+
+            _repositoryMock.Verify(x => x.CreateAsync(
+                    It.Is<Game>(g =>
+                    g.Title == createGameDto.Title &&
+                    g.Developer!.Name == "From Software" &&
+                    g.Genres.Count == 1 &&
+                    g.Platforms.Count == 1 &&
+                    g.UserId == _currentUserServiceMock.Object.UserId)),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateAsync_WhenDeveloperNotExists_ReturnsDeveloperNotFoundException()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId)
+                .Returns(1);
+
+            _repositoryMock.Setup(x => x.GetDeveloperByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync((Developer?)null);
+
+            _repositoryMock.Setup(x => x.GetGenresByIdsAsync(It.IsAny<IEnumerable<int>>()))
+    .           ReturnsAsync(new List<Genre>() { new Genre("RPG") });
+
+            _repositoryMock.Setup(x => x.GetGamePlatformsByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<GamePlatform>() { new GamePlatform("PC") });
+
+            var createGameDto = new CreateGameDto()
+            {
+                Title = "Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = Domain.Enums.GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 100
+            };
+
+            await Assert.ThrowsAsync<DeveloperNotFoundException>(() => _gameService.CreateAsync(createGameDto));
+        }
+
+        [Fact]
+        public async Task CreateAsync_WhenDuplicateGenres_ReturnsGameValidationException()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId)
+                .Returns(1);
+
+            _repositoryMock.Setup(x => x.GetDeveloperByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new Developer("From Software"));
+
+            _repositoryMock.Setup(x => x.GetGenresByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<Genre>() { new Genre("RPG"), new Genre("Action") });
+
+            _repositoryMock.Setup(x => x.GetGamePlatformsByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<GamePlatform>() { new GamePlatform("PC") });
+
+            var createGameDto = new CreateGameDto()
+            {
+                Title = "Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1, 2, 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = Domain.Enums.GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 100
+            };
+
+            await Assert.ThrowsAsync<GameValidationException>(() => _gameService.CreateAsync(createGameDto));
+        }
+
+        [Fact]
+        public async Task CreateAsync_WhenDuplicatePlatforms_ReturnsGameValidationException()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId)
+                .Returns(1);
+
+            _repositoryMock.Setup(x => x.GetDeveloperByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new Developer("From Software"));
+
+            _repositoryMock.Setup(x => x.GetGenresByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<Genre>() { new Genre("RPG") });
+
+            _repositoryMock.Setup(x => x.GetGamePlatformsByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<GamePlatform>() { new GamePlatform("PC"), new GamePlatform("PS5") });
+
+            var createGameDto = new CreateGameDto()
+            {
+                Title = "Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1, 2, 1 },
+                Status = Domain.Enums.GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 100
+            };
+
+            await Assert.ThrowsAsync<GameValidationException>(() => _gameService.CreateAsync(createGameDto));
+        }
+
+        [Fact]
+        public async Task CreateAsync_WhenGenreNotFound_ReturnsGameValidationException()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId)
+                .Returns(1);
+
+            _repositoryMock.Setup(x => x.GetDeveloperByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new Developer("From Software"));
+
+            _repositoryMock.Setup(x => x.GetGenresByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<Genre>());
+
+            _repositoryMock.Setup(x => x.GetGamePlatformsByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<GamePlatform>() { new GamePlatform("PC") });
+
+            var createGameDto = new CreateGameDto()
+            {
+                Title = "Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = Domain.Enums.GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 100
+            };
+
+            await Assert.ThrowsAsync<GameValidationException>(() => _gameService.CreateAsync(createGameDto));
+        }
+
+        [Fact]
+        public async Task CreateAsync_WhenPlatformNotFound_ReturnsGameValidationException()
+        {
+            _currentUserServiceMock.Setup(x => x.UserId)
+                .Returns(1);
+
+            _repositoryMock.Setup(x => x.GetDeveloperByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new Developer("From Software"));
+
+            _repositoryMock.Setup(x => x.GetGenresByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<Genre>() { new Genre("RPG") });
+
+            _repositoryMock.Setup(x => x.GetGamePlatformsByIdsAsync(It.IsAny<IEnumerable<int>>()))
+                .ReturnsAsync(new List<GamePlatform>());
+
+            var createGameDto = new CreateGameDto()
+            {
+                Title = "Elden Ring",
+                DeveloperId = 1,
+                GenreIds = new List<int> { 1 },
+                PlatformIds = new List<int> { 1 },
+                Status = Domain.Enums.GameStatus.Completed,
+                Rating = 10,
+                HoursPlayed = 100
+            };
+
+            await Assert.ThrowsAsync<GameValidationException>(() => _gameService.CreateAsync(createGameDto));
         }
     }
 }
