@@ -7,6 +7,8 @@ using GameTracker.Api.Extensions;
 using GameTracker.Infrastructure.Extensions;
 using GameTracker.Application.Extensions;
 
+const string frontendPolicy = "FrontendPolicy";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +17,17 @@ builder.Services
     .AddApi(builder.Configuration)
     .AddInfrastructure(builder.Configuration)
     .AddApplication();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(frontendPolicy, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -32,7 +45,9 @@ app.UseExceptionHandler();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
+
+app.UseCors(frontendPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
