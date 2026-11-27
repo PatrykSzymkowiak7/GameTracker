@@ -45,6 +45,7 @@ function LoginPage(props: LoginPageProps) {
             <h1 className="text-2xl font-bold">GameTracker</h1>
 
             <input
+                required
                 type="text"
                 placeholder="Username"
                 value={username}
@@ -53,6 +54,7 @@ function LoginPage(props: LoginPageProps) {
             />
 
             <input
+                required
                 type="password"
                 placeholder="Password"
                 value={password}
