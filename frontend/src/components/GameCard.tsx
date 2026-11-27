@@ -2,9 +2,10 @@ import type { Game } from "../types/game";
 
 interface GameCardProps {
     game: Game;
+    onEdit: (game: Game) => void;
 }
 
-function GameCard({ game }: GameCardProps) {
+function GameCard({ game, onEdit }: GameCardProps) {
     return (
         <div className="overflow-hidden rounded-xl border border-slate-700 bg-slate-800 transition hover:border-blue-500">
             {game.imageUrl ? (<img
@@ -27,9 +28,19 @@ function GameCard({ game }: GameCardProps) {
                     Hours played: {game.hoursPlayed}
                 </p>
 
-                <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs text-blue-300">
-                    {game.status}
-                </span>
+                <div className="mt-4 flex items-center justify-between">
+                    <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs text-blue-300">
+                        {game.status}
+                    </span>
+
+                    <button
+                        type="button"
+                        onClick={() => onEdit(game)}
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium transition hover:bg-blue-500"
+                    >
+                        Edit
+                    </button>
+                </div>
             </div>
         </div>
     );
