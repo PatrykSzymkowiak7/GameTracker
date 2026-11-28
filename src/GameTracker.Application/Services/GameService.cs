@@ -157,7 +157,7 @@ namespace GameTracker.Application.Services
             if (game is null)
                 return null;
 
-            game.UpdateDetals(
+            game.UpdateDetails(
                 title: dto.Title, 
                 status: dto.Status, 
                 rating: dto.Rating, 
@@ -165,6 +165,12 @@ namespace GameTracker.Application.Services
 
             game.SetGenres(genres);
             game.SetPlatforms(platforms);
+
+            Developer? developer = dto.DeveloperId.HasValue 
+                ? await _repository.GetDeveloperByIdAsync(dto.DeveloperId.Value)
+                : null;
+
+            game.SetDeveloper(developer);
 
             await _repository.UpdateAsync(game, _currentUserService.UserId);
 
