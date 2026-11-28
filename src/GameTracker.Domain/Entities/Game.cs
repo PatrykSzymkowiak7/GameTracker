@@ -46,7 +46,7 @@ namespace GameTracker.Domain.Entities
         {
             ArgumentNullException.ThrowIfNull(genre);
 
-            if (!_genres.Select(g => g.Id).ToList().Contains(genre.Id))
+            if (!_genres.Any(g => g.Id == genre.Id))
                 _genres.Add(genre);
         }
 
@@ -60,7 +60,7 @@ namespace GameTracker.Domain.Entities
         {
             ArgumentNullException.ThrowIfNull(platform);
 
-            if (!_platforms.Select(p => p.Id).ToList().Contains(platform.Id))
+            if (!_platforms.Any(p => p.Id == platform.Id))
                 _platforms.Add(platform);
         }
 
@@ -79,11 +79,13 @@ namespace GameTracker.Domain.Entities
         {
             ArgumentNullException.ThrowIfNull(platforms);
 
-            if (Genres.Count() == 0)
-                throw new ArgumentException("Platforms cannot be null");
+            if (Platforms.Count() == 0)
+                throw new ArgumentException("Platforms cannot be empty");
 
             _platforms.Clear();
-            _platforms.AddRange(platforms);
+
+            foreach(var platform in platforms)
+                AddPlatform(platform);
         }
 
         public void Rename(string title)
@@ -102,7 +104,8 @@ namespace GameTracker.Domain.Entities
 
         public void ChangeStatus(GameStatus status)
         {
-            ArgumentNullException.ThrowIfNull(status);
+            if (!Enum.IsDefined(status))
+                throw new ArgumentOutOfRangeException(nameof(status));
 
             Status = status;
         }
@@ -115,7 +118,7 @@ namespace GameTracker.Domain.Entities
             HoursPlayed = hoursPlayed;
         }
 
-        public void UpdateDetals(
+        public void UpdateDetails(
             string title,
             GameStatus status,
             double? rating,
@@ -129,13 +132,22 @@ namespace GameTracker.Domain.Entities
             if (hoursPlayed < 0)
                 throw new ArgumentOutOfRangeException(nameof(hoursPlayed));
 
-            if(rating != null && rating < 0 || rating > 10)
+            if(rating != null && (rating < 0 || rating > 10))
                     throw new ArgumentOutOfRangeException(nameof(rating));
 
-            Title = title;
+            if (!Enum.IsDefined(status))
+                throw new ArgumentOutOfRangeException(nameof(status));
+
+            Title = title.Trim();
             Status = status;
             Rating = rating;
             HoursPlayed = hoursPlayed;
+        }
+
+        public void SetDeveloper(Developer? developer)
+        {
+            DeveloperId = developer?.Id;
+            Developer = developer;
         }
     }
 }
